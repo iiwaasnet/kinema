@@ -1,0 +1,6 @@
+1. Message payload may not be even serializable. For instance, only in local
+	mode messages will be passed by ref.
+	public class Message<TPayouload>
+	{
+		public bool IsLocal {} <= TRUE (may be set to TRUE once an instance of a remote message was returned from Actor)
+	}
