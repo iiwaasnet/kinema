@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using kinema.Core;
 using kinema.Core.Framework;
@@ -8,11 +7,11 @@ namespace kinema.Messaging
 {
     internal class Message : MessageIdentifier, IMessage
     {
+        private readonly IMessage IMessage;
         private byte[] body;
         private readonly IMessageSerializer? serializer;
         private object? deserializedPayload;
         private readonly object? payload;
-        private List<MessageIdentifier> callbackPoint;
         private static readonly byte[] EmptyCorrelationId = Guid.Empty.ToString().GetBytes();
 
         private Message(object payload,
@@ -20,10 +19,10 @@ namespace kinema.Messaging
                         IMessageSerializer? serializer = default!)
             : base(messageIdentifier.Identity, messageIdentifier.Version, messageIdentifier.Partition)
         {
+            IMessage = this;
             this.payload = payload;
             this.serializer = serializer;
             Domain = string.Empty;
-            callbackPoint = new List<MessageIdentifier>();
             Signature = IdentityExtensions.Empty;
             ReceiverNodeIdentity = IdentityExtensions.Empty;
             ReceiverIdentity = IdentityExtensions.Empty;
@@ -79,13 +78,28 @@ namespace kinema.Messaging
         {
         }
 
-        public DistributionPattern Distribution { get; private set; }
+        void IMessage.RegisterCallbackPoint(CallbackPoint callbackPoint)
+            => IMessage.CallbackPoint = callbackPoint;
 
-        public byte[] CorrelationId { get; private set; }
+        IMessage IMessage.CopyMessageProperties(IMessage src)
+        {
+            if (IMessage.Distribution == DistributionPattern.Unicast)
+            {
+                IMessage.RegisterCallbackPoint(src.CallbackPoint);
+            }
 
-        //public byte[] Body { get; }
+            IMessage.CorrelationId = src.CorrelationId;
 
-        public string Domain { get; }
+            return this;
+        }
+
+        CallbackPoint IMessage.CallbackPoint { get; set; }
+
+        byte[] IMessage.CorrelationId { get; set; }
+
+        DistributionPattern IMessage.Distribution { get; set; }
+
+        string IMessage.Domain { get; set; }
 
         public byte[] ReceiverIdentity { get; }
 
@@ -93,16 +107,16 @@ namespace kinema.Messaging
 
         public byte[] Signature { get; }
 
-        public IEnumerable<MessageIdentifier> CallbackPoint
-        {
-            get => callbackPoint;
-            private set => callbackPoint = value.ToList();
-        }
+        //public IEnumerable<MessageIdentifier> CallbackPoint
+        //{
+        //    get => callbackPoint;
+        //    private set => callbackPoint = value.ToList();
+        //}
 
-        public long CallbackKey { get; private set; }
+        //public long CallbackKey { get; private set; }
 
-        public byte[] CallbackReceiverIdentity { get; private set; }
+        //public byte[] CallbackReceiverIdentity { get; private set; }
 
-        public byte[] CallbackReceiverNodeIdentity { get; private set; }
+        //public byte[] CallbackReceiverNodeIdentity { get; private set; }
     }
 }

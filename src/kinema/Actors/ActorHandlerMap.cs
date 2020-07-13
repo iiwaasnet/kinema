@@ -8,10 +8,10 @@ namespace kinema.Actors
 {
     public class ActorHandlerMap : IActorHandlerMap
     {
-        private readonly ConcurrentDictionary<MessageIdentifier, MessageHandler> messageHandlers;
+        private readonly ConcurrentDictionary<IMessageIdentifier, MessageHandler> messageHandlers;
 
         public ActorHandlerMap()
-            => messageHandlers = new ConcurrentDictionary<MessageIdentifier, MessageHandler>();
+            => messageHandlers = new ConcurrentDictionary<IMessageIdentifier, MessageHandler>();
 
         public IEnumerable<ActorMessageHandlerIdentifier> Add(IActor actor)
         {
@@ -36,7 +36,7 @@ namespace kinema.Actors
 
             return tmp;
 
-            void CleanupActorRegistrations(IEnumerable<MessageIdentifier> incomplete)
+            void CleanupActorRegistrations(IEnumerable<IMessageIdentifier> incomplete)
             {
                 foreach (var identifier in incomplete)
                 {
@@ -58,12 +58,8 @@ namespace kinema.Actors
             throw new KeyNotFoundException(identifier.ToString());
         }
 
-        private static IEnumerable<KeyValuePair<MessageIdentifier, MessageHandlerDefinition>> GetActorRegistrations(IActor actor)
+        private static IDictionary<IMessageIdentifier, MessageHandlerDefinition> GetActorRegistrations(IActor actor)
             => actor.GetInterfaceDefinition()
-                    .Select(messageMap =>
-                                new KeyValuePair<MessageIdentifier, MessageHandlerDefinition>(new MessageIdentifier(messageMap.Message.Identity,
-                                                                                                                    messageMap.Message.Version,
-                                                                                                                    messageMap.Message.Partition),
-                                                                                              messageMap));
+                    .ToDictionary(mhd => mhd.Message, mhd => mhd);
     }
 }

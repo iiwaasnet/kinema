@@ -5,9 +5,17 @@ namespace kinema.Client
 {
     public class CallbackPoint
     {
-        public CallbackPoint(params MessageIdentifier[] messageIdentifiers)
-            => MessageIdentifiers = messageIdentifiers;
+        private readonly HashSet<IMessageIdentifier> messageIdentifiers;
 
-        public IEnumerable<MessageIdentifier> MessageIdentifiers { get; }
+        public CallbackPoint(params IMessageIdentifier[] messageIdentifiers)
+        {
+            this.messageIdentifiers = new HashSet<IMessageIdentifier>(messageIdentifiers);
+            if (!this.messageIdentifiers.Contains(Messaging.Messages.MessageIdentifiers.Exception))
+            {
+                this.messageIdentifiers.Add(Messaging.Messages.MessageIdentifiers.Exception);
+            }
+        }
+
+        public IEnumerable<IMessageIdentifier> MessageIdentifiers => messageIdentifiers;
     }
 }

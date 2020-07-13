@@ -9,6 +9,6 @@ namespace kinema.Actors
 
         bool CanAdd(IActor actor);
 
-        MessageHandler Get(MessageIdentifier identifier);
+        MessageHandler Get(IMessageIdentifier identifier);
     }
 }

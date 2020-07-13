@@ -17,6 +17,12 @@ namespace kinema.Core
             Partition = partition ?? IdentityExtensions.Empty;
         }
 
+        public static IMessageIdentifier Create(string name, ushort version)
+            => new MessageIdentifier(name.GetBytes(), version);
+
+        internal static IMessageIdentifier CreateForFramework(string name, ushort version)
+            => new MessageIdentifier($"kinema.{name}".GetBytes(), version);
+
         protected virtual int CalculateHashCode()
             => HashCode.Combine(Identity.ComputeHash(), Version, Partition.ComputeHash());
 

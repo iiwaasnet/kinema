@@ -1,4 +1,5 @@
-﻿using kinema.Messaging;
+﻿using kinema.Core;
+using kinema.Messaging;
 
 namespace kinema.Client
 {
@@ -9,5 +10,7 @@ namespace kinema.Client
         IPromise Send(IMessage message);
 
         IPromise Send(IMessage message, CallbackPoint callbackPoint);
+
+        ReceiverIdentifier ReceiverIdentifier { get; }
     }
 }
