@@ -7,7 +7,7 @@ namespace kinema.Client
     {
         void SendOneWay(IMessage message);
 
-        IPromise Send(IMessage message);
+        IPromise SendWithReceiptAck(IMessage message);
 
         IPromise Send(IMessage message, CallbackPoint callbackPoint);
 
